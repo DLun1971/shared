@@ -180,12 +180,11 @@ function renderContent() {
     } else {
     imgCell = '<td class="col-img"><div class="img-placeholder"></div></td>';
        }
-        }
-
+        
         html += '<tr>'
           + cbCell
           + imgCell
-          + '<td><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
           + '<td><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
           + specCells + '</tr>';
       });
