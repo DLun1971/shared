@@ -1,4 +1,4 @@
-/* Motorola Accessory Catalog — Shared Rendering Engine — catalog.js */
+/* Motorola Accessory Catalog â Shared Rendering Engine â catalog.js */
 
 let activeRadio = null;
 let activeCat   = null;
@@ -28,6 +28,7 @@ const COL_KEY = {
   'HazLoc':'hazloc',
   'IP':'ip',
   'Chemistry':'chem',
+  'Voltage':'voltage',
   'Power':'pwr_src',
   'Noise Type':'noise_type',
   'Style':'style',
@@ -41,11 +42,11 @@ const COL_KEY = {
   'Length':'len_cm',
 };
 
-// Columns that display text values instead of checkmarks — sorted LEFT of checkmark cols
+// Columns that display text values instead of checkmarks â sorted LEFT of checkmark cols
 const TEXT_VALUE_COLS = new Set([
   'NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets',
   'HazLoc','IP',
-  'Chemistry','Power','Noise Type','Style','Coverage',
+  'Chemistry','Voltage','Power','Noise Type','Style','Coverage',
   'Material','Belt','Band','Freq','Ant Type','Length',
 ]);
 
@@ -54,9 +55,9 @@ function colWidth(col) {
 }
 
 function ck(v) {
-  if (v === 1 || v === true)  return '<span class="ck">✓</span>';
-  if (v === 0 || v === false) return '<span class="dash">—</span>';
-  if (v === '—' || v === null || v === undefined) return '<span class="dash">—</span>';
+  if (v === 1 || v === true)  return '<span class="ck">â</span>';
+  if (v === 0 || v === false) return '<span class="dash">â</span>';
+  if (v === 'â' || v === null || v === undefined) return '<span class="dash">â</span>';
   return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
 }
 
@@ -90,7 +91,7 @@ function buildImgCell(item) {
     return '<td class="col-img"><img src="' + item.img
       + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
   }
-  return '<td class="col-img"><div class="img-placeholder">📷</div></td>';
+  return '<td class="col-img"><div class="img-placeholder">ð·</div></td>';
 }
 
 function buildCbCell(item, itemData) {
@@ -117,7 +118,7 @@ function buildItemData(item, cat, sec, radio) {
 
 function renderSpecCell(col, val) {
   if (TEXT_VALUE_COLS.has(col)) {
-    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
+    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">â</span></td>';
     return '<td class="col-check tc"><span class="val-text">' + val + '</span></td>';
   }
   return '<td class="col-check tc">' + ck(val !== undefined ? val : 0) + '</td>';
@@ -183,7 +184,7 @@ function renderContent() {
   ).join('');
 
   let html = '<div class="radio-header">'
-    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">📻</span></div>'
+    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">ð»</span></div>'
     + '<div class="rh-info">'
     + '<div class="rh-name">' + radio.name + '</div>'
     + '<div class="rh-sub">' + radio.sub + '</div>'
@@ -213,7 +214,7 @@ function renderContent() {
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
+          return v !== undefined && v !== 0 && v !== false && v !== 'â' && v !== null;
         });
       });
 
@@ -327,13 +328,13 @@ function renderSubbar() {
   bar.className = 'subbar';
   bar.id = 'subbar';
   bar.innerHTML = `
-    <a class="subbar-home" href="../index.html">← Home</a>
+    <a class="subbar-home" href="../index.html">â Home</a>
     <div class="subbar-sep"></div>
     <div class="subbar-spacer"></div>
     <div class="subbar-search-wrap">
-      <span class="subbar-search-icon">🔍</span>
+      <span class="subbar-search-icon">ð</span>
       <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
-      <span class="subbar-clear" id="subbarClear">✕</span>
+      <span class="subbar-clear" id="subbarClear">â</span>
     </div>
   `;
   document.body.insertBefore(bar, document.querySelector('.page-body'));
