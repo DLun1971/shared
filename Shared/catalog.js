@@ -1,4 +1,4 @@
-/* Motorola Accessory Catalog — Shared Rendering Engine — catalog.js */
+/* Motorola Accessory Catalog '\u2014' Shared Rendering Engine '\u2014' catalog.js */
 
 let activeRadio = null;
 let activeCat   = null;
@@ -70,8 +70,8 @@ function renderCatSidebar() {
 
 function ck(v) {
   if (v === 1 || v === true)  return '<span class="ck">✓</span>';
-  if (v === 0 || v === false) return '<span class="dash">—</span>';
-  if (v === '—' || v === null || v === undefined) return '<span class="dash">—</span>';
+  if (v === 0 || v === false) return '<span class="dash">'\u2014'</span>';
+  if (v === ''\u2014'' || v === null || v === undefined) return '<span class="dash">'\u2014'</span>';
   return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
 }
 
@@ -125,7 +125,7 @@ function renderContent() {
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
+          return v !== undefined && v !== 0 && v !== false && v !== ''\u2014'' && v !== null;
         });
       });
 
@@ -148,7 +148,7 @@ function renderContent() {
           const isText = textCols.has(col);
 
           if (col === 'UL HazLoc') {
-            if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
+            if (!val || val === 0) return '<td class="tc"><span class="dash">'\u2014'</span></td>';
             const label = typeof val === 'string' ? val : 'UL';
             return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + label + '</span></td>';
           }
@@ -201,7 +201,7 @@ function renderContent() {
       html += '</tbody></table></div>';
 
     } else {
-      // Simple list — no spec columns (replacement sections or cats with no cols)
+      // Simple list '\u2014' no spec columns (replacement sections or cats with no cols)
       html += '<table class="acc-table"><thead><tr>'
         + '<th class="report-cb-cell"></th>'
         + '<th style="width:130px">Part Number</th>'
