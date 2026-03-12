@@ -1,4 +1,4 @@
-/* Motorola Accessory Catalog \u00e2\u0080\u0094 Shared Rendering Engine \u00e2\u0080\u0094 catalog.js */
+/* Motorola Accessory Catalog — Shared Rendering Engine — catalog.js */
 
 let activeRadio = null;
 let activeCat   = null;
@@ -42,7 +42,7 @@ const COL_KEY = {
   'Length':'len_cm',
 };
 
-// Columns that display text values instead of checkmarks \u00e2\u0080\u0094 sorted LEFT of checkmark cols
+// Columns that display text values instead of checkmarks — sorted LEFT of checkmark cols
 const TEXT_VALUE_COLS = new Set([
   'NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets',
   'HazLoc','IP',
@@ -55,9 +55,9 @@ function colWidth(col) {
 }
 
 function ck(v) {
-  if (v === 1 || v === true)  return '<span class="ck">\u00e2\u009c\u0093</span>';
-  if (v === 0 || v === false) return '<span class="dash">\u00e2\u0080\u0094</span>';
-  if (v === '\u00e2\u0080\u0094' || v === null || v === undefined) return '<span class="dash">\u00e2\u0080\u0094</span>';
+  if (v === 1 || v === true)  return '<span class="ck">✓</span>';
+  if (v === 0 || v === false) return '<span class="dash">—</span>';
+  if (v === '—' || v === null || v === undefined) return '<span class="dash">—</span>';
   return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
 }
 
@@ -91,7 +91,7 @@ function buildImgCell(item) {
     return '<td class="col-img"><img src="' + item.img
       + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
   }
-  return '<td class="col-img"><div class="img-placeholder">\u00f0\u009f\u0093\u00b7</div></td>';
+  return '<td class="col-img"><div class="img-placeholder">📷</div></td>';
 }
 
 function buildCbCell(item, itemData) {
@@ -118,7 +118,7 @@ function buildItemData(item, cat, sec, radio) {
 
 function renderSpecCell(col, val) {
   if (TEXT_VALUE_COLS.has(col)) {
-    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">\u00e2\u0080\u0094</span></td>';
+    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
     return '<td class="col-check tc"><span class="val-text">' + val + '</span></td>';
   }
   return '<td class="col-check tc">' + ck(val !== undefined ? val : 0) + '</td>';
@@ -184,7 +184,7 @@ function renderContent() {
   ).join('');
 
   let html = '<div class="radio-header">'
-    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">\u00f0\u009f\u0093\u00bb</span></div>'
+    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">📻</span></div>'
     + '<div class="rh-info">'
     + '<div class="rh-name">' + radio.name + '</div>'
     + '<div class="rh-sub">' + radio.sub + '</div>'
@@ -214,7 +214,7 @@ function renderContent() {
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '\u00e2\u0080\u0094' && v !== null;
+          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
         });
       });
 
@@ -328,13 +328,13 @@ function renderSubbar() {
   bar.className = 'subbar';
   bar.id = 'subbar';
   bar.innerHTML = `
-    <a class="subbar-home" href="../index.html">\u00e2\u0086\u0090 Home</a>
+    <a class="subbar-home" href="../index.html">← Home</a>
     <div class="subbar-sep"></div>
     <div class="subbar-spacer"></div>
     <div class="subbar-search-wrap">
-      <span class="subbar-search-icon">\u00f0\u009f\u0094\u008d</span>
+      <span class="subbar-search-icon">🔍</span>
       <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
-      <span class="subbar-clear" id="subbarClear">\u00e2\u009c\u0095</span>
+      <span class="subbar-clear" id="subbarClear">✕</span>
     </div>
   `;
   document.body.insertBefore(bar, document.querySelector('.page-body'));
