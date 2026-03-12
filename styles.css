@@ -391,7 +391,7 @@ body {
 .table-wrap tbody tr:last-child { border-bottom: none; }
 .table-wrap tbody tr:hover { background: var(--bg); cursor: pointer; }
 .table-wrap td { padding: 10px 12px; vertical-align: middle; }
-.table-wrap td:nth-child(2) { min-width: 300px; max-width: 420px; }
+.table-wrap td:nth-child(2) { }
 .table-wrap td:nth-child(1),
 .table-wrap thead th:nth-child(1) {
   position: sticky;
@@ -420,4 +420,5 @@ body {
 .fp-impres { background: var(--green-lt);  color: var(--green);    border-color: #a7f3d0; }
 .fp-bt     { background: var(--purple-lt); color: var(--purple);   border-color: #ddd6fe; }
 .fp-dmr    { background: var(--acc-lt);    color: var(--acc);      border-color: #bfdbfe; }
+
 .fp-gray   { background: var(--bg2);       color: var(--muted);    border-color: var(--border); }
