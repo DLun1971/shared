@@ -100,7 +100,6 @@ function buildItemData(item, cat, sec, radio) {
   };
 }
 
-// Render a spec column cell
 function renderSpecCell(col, val) {
   if (col === 'HazLoc' || col === 'UL HazLoc') {
     if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
@@ -212,26 +211,26 @@ function renderContent() {
 
       const activeCols = sortCols(rawActiveCols);
 
-      const headerHtml = ''
-        + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
-        + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
-        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
-        + '<th class="col-desc" style="text-align:center">Description</th>'
-        + activeCols.map(c => {
-            const w = colWidth(c);
-            return '<th class="col-check tc" style="width:' + w + ';min-width:' + w + ';max-width:' + w + '">' + c + '</th>';
-          }).join('');
-
       const colgroupHtml = '<colgroup>'
         + '<col style="width:28px;min-width:28px;max-width:28px">'
         + '<col style="width:52px;min-width:52px;max-width:52px">'
         + '<col style="width:130px;min-width:130px;max-width:130px">'
-        + '<col class="col-desc">'
+        + '<col style="min-width:220px;width:auto">'
         + activeCols.map(c => {
             const w = colWidth(c);
             return '<col style="width:' + w + ';min-width:' + w + ';max-width:' + w + '">';
           }).join('')
         + '</colgroup>';
+
+      const headerHtml = ''
+        + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
+        + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
+        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
+        + '<th style="min-width:220px;text-align:center">Description</th>'
+        + activeCols.map(c => {
+            const w = colWidth(c);
+            return '<th class="col-check tc" style="width:' + w + ';min-width:' + w + ';max-width:' + w + '">' + c + '</th>';
+          }).join('');
 
       html += '<div class="table-wrap"><table>'
         + colgroupHtml
@@ -256,7 +255,9 @@ function renderContent() {
           + cbCell
           + imgCell
           + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td class="col-desc"><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
+          + '<td style="min-width:220px;text-align:center;vertical-align:middle">'
+          +   '<div class="td-main">' + item.desc + '</div>' + noteHtml
+          + '</td>'
           + specCells
           + '</tr>';
       });
@@ -269,7 +270,7 @@ function renderContent() {
         + '<col style="width:28px;min-width:28px;max-width:28px">'
         + '<col style="width:52px;min-width:52px;max-width:52px">'
         + '<col style="width:130px;min-width:130px;max-width:130px">'
-        + '<col class="col-desc">'
+        + '<col style="min-width:220px;width:auto">'
         + '<col style="width:160px;min-width:160px;max-width:160px">'
         + '</colgroup>';
 
@@ -279,7 +280,7 @@ function renderContent() {
         + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
         + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
         + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
-        + '<th class="col-desc" style="text-align:center">Description</th>'
+        + '<th style="min-width:220px;text-align:center">Description</th>'
         + '<th class="col-note" style="width:160px;min-width:160px;max-width:160px;text-align:center">Notes</th>'
         + '</tr></thead><tbody>';
 
@@ -292,8 +293,9 @@ function renderContent() {
           + cbCell
           + imgCell
           + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td class="col-desc"><div class="td-main">' + item.desc + '</div>'
-          + (item.note ? '<div class="td-note">' + item.note + '</div>' : '')
+          + '<td style="min-width:220px;text-align:center;vertical-align:middle">'
+          +   '<div class="td-main">' + item.desc + '</div>'
+          +   (item.note ? '<div class="td-note">' + item.note + '</div>' : '')
           + '</td>'
           + '<td class="col-note">' + (item.note || '') + '</td>'
           + '</tr>';
