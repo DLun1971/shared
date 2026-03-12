@@ -186,7 +186,7 @@ function renderContent() {
             imgCell = '<td class="product-img-cell"><img src="' + item.img
               + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
           } else {
-            imgCell = '<td class="product-img-cell"><span class="no-img">—</span></td>';
+            imgCell = '<td class="product-img-cell"><<span class="no-img">&mdash;</span>/td>';
           }
         }
 
