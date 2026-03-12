@@ -1,0 +1,134 @@
+/* Motorola Solutions — Report Tray Styles — report-tray.css */
+
+/* ── Floating tray ───────────────────────────────────────────────── */
+.report-tray {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #1a1a2e;
+  color: #fff;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top: 2px solid #e4a400;
+}
+
+.report-tray.tray-active {
+  transform: translateY(0);
+}
+
+.rt-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ── Left side: icon + count ─────────────────────────────────────── */
+.rt-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rt-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.rt-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+/* ── Action buttons ──────────────────────────────────────────────── */
+.rt-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rt-btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, opacity 0.15s;
+  font-family: inherit;
+}
+
+.rt-btn-clear {
+  background: transparent;
+  color: #aab0c0;
+  border: 1px solid #3a3a5c;
+}
+
+.rt-btn-clear:hover {
+  background: #2a2a4a;
+  color: #fff;
+}
+
+.rt-btn-report {
+  background: #e4a400;
+  color: #1a1a2e;
+}
+
+.rt-btn-report:hover {
+  background: #f0b800;
+}
+
+/* ── Checkbox column ─────────────────────────────────────────────── */
+.report-cb-cell {
+  width: 36px;
+  min-width: 36px;
+  text-align: center;
+  padding: 0 4px !important;
+  vertical-align: middle;
+}
+
+.report-cb {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #e4a400;
+  vertical-align: middle;
+}
+
+/* ── Product image column ────────────────────────────────────────── */
+.product-img-cell {
+  width: 72px;
+  min-width: 72px;
+  text-align: center;
+  padding: 4px !important;
+  vertical-align: middle;
+}
+
+.product-thumb {
+  max-width: 60px;
+  max-height: 60px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+}
+
+.no-img {
+  color: var(--muted, #8a8fa8);
+  font-size: 13px;
+}
+
+/* ── Print: hide tray entirely ───────────────────────────────────── */
+@media print {
+  .report-tray {
+    display: none !important;
+  }
+}

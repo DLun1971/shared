@@ -1,0 +1,318 @@
+/* Motorola Accessory Catalog — Shared Rendering Engine — catalog.js */
+
+let activeRadio = null;
+let activeCat   = null;
+let searchTerm  = '';
+
+function getBadges(item) {
+  const txt = (item.desc + ' ' + (item.note||'')).toLowerCase();
+  const badges = [];
+  if (txt.includes('impres'))                              badges.push('<span class="badge badge-impres">IMPRES</span>');
+  if (txt.includes('ip68'))                                badges.push('<span class="badge badge-ip68">IP68</span>');
+  else if (txt.includes('ip67'))                           badges.push('<span class="badge badge-ip67">IP67</span>');
+  else if (txt.includes('ip66'))                           badges.push('<span class="badge badge-ip66">IP66</span>');
+  else if (txt.includes('ip54'))                           badges.push('<span class="badge badge-ip54">IP54</span>');
+  if (txt.includes('ul hazloc') || txt.includes('ul '))    badges.push('<span class="badge badge-ul">UL</span>');
+  return badges.join('');
+}
+
+const COL_KEY = {
+  'IMPRES':'impres','IP68':'ip68','UL HazLoc':'ul','InAud':'intel',
+  'Ion FW Req':'ion_fw','BT/Wireless':'bt','Full Duplex':'fulldx',
+  'IP Rated':'ip','NRR':'nrr','Noise Cancel':'nc',
+  'Wires':'wires','FW Required':'fw_req','NFC':'nfc','Emg Btn':'emg',
+  'BT':'bt','Capacity':'mah','IP Rating':'ip','Temp Range':'temp',
+  'Pockets':'pockets','Recond.':'recondn',
+  'AINS':'ains','WWet':'wwet','SmartSW':'smart_sw',
+  'Ambient':'ambient','IMPRES 2':'impres2',
+};
+
+function renderSidebar() {
+  const sb = document.getElementById('radioSidebar');
+  sb.innerHTML = `
+    <div class="rs-logo-row">
+      <strong style="font-size:13px;color:var(--text)">${CATALOG_TITLE}</strong>
+      <p>${CATALOG_SUBTITLE}</p>
+    </div>
+    <div class="rs-group-label">Portable Radios</div>
+  `;
+  Object.entries(RADIOS).forEach(([id, radio]) => {
+    if (!activeRadio) activeRadio = id;
+    const btn = document.createElement('button');
+    btn.className = 'radio-btn' + (id === activeRadio ? ' active' : '');
+    btn.setAttribute('data-radio', id);
+    const catCount = Object.keys(radio.categories).length;
+    btn.innerHTML = `
+      <div class="rb-inner">
+        <span class="rb-name">${radio.name}</span>
+        <span class="rb-sub">${radio.sub}</span>
+      </div>
+      <span class="rb-badge">${catCount}</span>
+    `;
+    btn.onclick = () => { activeRadio = id; activeCat = null; renderAll(); };
+    sb.appendChild(btn);
+  });
+}
+
+function renderCatSidebar() {
+  const sb = document.getElementById('catSidebar');
+  const radio = RADIOS[activeRadio];
+  if (!activeCat) activeCat = Object.keys(radio.categories)[0];
+  sb.innerHTML = `<div class="cs-label">Categories</div>`;
+  Object.entries(radio.categories).forEach(([key, cat]) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (key === activeCat ? ' active' : '');
+    btn.innerHTML = `<span class="cb-icon">${cat.icon}</span><span class="cb-label">${cat.label}</span>`;
+    btn.onclick = () => { activeCat = key; renderCatSidebar(); renderContent(); };
+    sb.appendChild(btn);
+  });
+}
+
+function ck(v) {
+  if (v === 1 || v === true)  return '<span class="ck">✓</span>';
+  if (v === 0 || v === false) return '<span class="dash">—</span>';
+  if (v === '—' || v === null || v === undefined) return '<span class="dash">—</span>';
+  return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
+}
+
+function renderContent() {
+  const panel = document.getElementById('contentInner');
+  const radio = RADIOS[activeRadio];
+  const cat   = radio.categories[activeCat];
+  const total = cat.sections.reduce((s, sec) => s + sec.items.length, 0);
+  const cols  = cat.cols || null;
+  const specCols = cols ? cols.slice(2) : [];
+  const textCols = new Set(['NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets']);
+
+  const tagHtml = radio.tags.map((t, i) =>
+    '<span class="rh-tag ' + (radio.tagStyles[i] || '') + '">' + t + '</span>'
+  ).join('');
+
+  let html = '<div class="radio-header">'
+    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">📻</span></div>'
+    + '<div class="rh-info">'
+    + '<div class="rh-name">' + radio.name + '</div>'
+    + '<div class="rh-sub">' + radio.sub + '</div>'
+    + '<div class="rh-tags">' + tagHtml + '</div>'
+    + '</div></div>'
+    + '<div class="cat-section">'
+    + '<div class="cat-section-header">'
+    + '<span class="cat-section-icon">' + cat.icon + '</span>'
+    + '<span class="cat-section-title">' + cat.label + '</span>'
+    + '<span class="cat-section-count">' + total + ' items</span>'
+    + '</div>';
+
+  cat.sections.forEach(sec => {
+    const items = filterItems(sec.items);
+    if (!items.length) return;
+
+    // Determine current section title for report tray itemData
+    const currentSectionTitle = sec.title;
+
+    html += '<div class="acc-subsection">';
+    html += '<div class="acc-subsection-title">' + sec.title + '</div>';
+
+    const isReplacementSection = sec.title.toLowerCase().includes('replacement');
+
+    if (!isReplacementSection && specCols.length > 0) {
+
+      // Determine whether any item in this section has an img value
+      const hasAnyImg = items.some(item => item.img);
+
+      // Filter out spec columns where no item in this section has a truthy value
+      const activeCols = specCols.filter(col => {
+        const k = COL_KEY[col];
+        return items.some(item => {
+          if (!item.checks || k === undefined) return false;
+          const v = item.checks[k];
+          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
+        });
+      });
+
+      // Build header: checkbox | [img] | Part Number | Description | ...specCols
+      let headerHtml = '<th class="report-cb-cell"></th>';
+      if (hasAnyImg) headerHtml += '<th class="product-img-cell"></th>';
+      headerHtml += '<th>Part Number</th><th>Description</th>';
+      headerHtml += activeCols.map(c =>
+        '<th class="' + (textCols.has(c) ? '' : 'tc') + '">' + c + '</th>'
+      ).join('');
+
+      html += '<div class="table-wrap"><table>'
+        + '<thead><tr>' + headerHtml + '</tr></thead>'
+        + '<tbody>';
+
+      items.forEach(item => {
+        const specCells = activeCols.map(col => {
+          const k = COL_KEY[col];
+          const val = (item.checks && k !== undefined) ? item.checks[k] : undefined;
+          const isText = textCols.has(col);
+
+          if (col === 'UL HazLoc') {
+            if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
+            const label = typeof val === 'string' ? val : 'UL';
+            return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + label + '</span></td>';
+          }
+
+          if (isText) return '<td style="font-size:12px;color:var(--text2)">' + ck(val) + '</td>';
+          return '<td class="tc">' + ck(val !== undefined ? val : 0) + '</td>';
+        }).join('');
+
+        const noteHtml = item.note ? '<div class="td-note">' + item.note + '</div>' : '';
+
+        // Build itemData for report tray
+        const itemData = {
+          partNum:   item.pn,
+          desc:      item.desc,
+          note:      item.note  || null,
+          category:  cat.label,
+          section:   currentSectionTitle,
+          catalog:   (typeof CATALOG_NAME !== 'undefined') ? CATALOG_NAME : (CATALOG_TITLE || ''),
+          radio:     radio.name,
+          checks:    item.checks || {},
+          img:       item.img    || null,
+        };
+
+        // Checkbox cell
+        const cbChecked = (typeof isSelected === 'function' && isSelected(item.pn)) ? 'checked' : '';
+        const cbCell = '<td class="report-cb-cell">'
+          + '<input type="checkbox" class="report-cb" value="' + item.pn + '" ' + cbChecked
+          + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
+          + '</td>';
+
+        // Image cell (only rendered if section has any img)
+        let imgCell = '';
+        if (hasAnyImg) {
+          if (item.img) {
+            imgCell = '<td class="product-img-cell"><img src="' + item.img
+              + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
+          } else {
+            imgCell = '<td class="product-img-cell"><span class="no-img">—</span></td>';
+          }
+        }
+
+        html += '<tr>'
+          + cbCell
+          + imgCell
+          + '<td><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
+          + specCells + '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+
+    } else {
+      // Simple list — no spec columns (replacement sections or cats with no cols)
+      html += '<table class="acc-table"><thead><tr>'
+        + '<th class="report-cb-cell"></th>'
+        + '<th style="width:130px">Part Number</th>'
+        + '<th>Description</th>'
+        + '<th style="width:260px">Notes</th>'
+        + '</tr></thead><tbody>';
+
+      items.forEach(item => {
+        const itemData = {
+          partNum:   item.pn,
+          desc:      item.desc,
+          note:      item.note  || null,
+          category:  cat.label,
+          section:   currentSectionTitle,
+          catalog:   (typeof CATALOG_NAME !== 'undefined') ? CATALOG_NAME : (CATALOG_TITLE || ''),
+          radio:     radio.name,
+          checks:    item.checks || {},
+          img:       item.img    || null,
+        };
+
+        const cbChecked = (typeof isSelected === 'function' && isSelected(item.pn)) ? 'checked' : '';
+        const cbCell = '<td class="report-cb-cell">'
+          + '<input type="checkbox" class="report-cb" value="' + item.pn + '" ' + cbChecked
+          + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
+          + '</td>';
+
+        html += '<tr>'
+          + cbCell
+          + '<td><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td class="desc">' + item.desc + '</td>'
+          + '<td class="note">' + (item.note || '') + '</td>'
+          + '</tr>';
+      });
+
+      html += '</tbody></table>';
+    }
+
+    html += '</div>'; // .acc-subsection
+  });
+
+  html += '</div>'; // .cat-section
+  panel.innerHTML = html;
+  panel.parentElement.scrollTop = 0;
+}
+
+// Safely serialize itemData for inline onchange attribute
+function escapeItemData(obj) {
+  return "'" + JSON.stringify(obj).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+}
+
+function copyPN(pn) {
+  navigator.clipboard.writeText(pn).catch(() => {});
+  const t = document.getElementById('copyToast');
+  t.textContent = `"${pn}" copied!`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function renderSubbar() {
+  const existing = document.getElementById('subbar');
+  if (existing) return;
+  const bar = document.createElement('div');
+  bar.className = 'subbar';
+  bar.id = 'subbar';
+  bar.innerHTML = `
+    <a class="subbar-home" href="../index.html">← Home</a>
+    <div class="subbar-sep"></div>
+    <div class="subbar-spacer"></div>
+    <div class="subbar-search-wrap">
+      <span class="subbar-search-icon">🔍</span>
+      <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
+      <span class="subbar-clear" id="subbarClear">✕</span>
+    </div>
+  `;
+  document.body.insertBefore(bar, document.querySelector('.page-body'));
+
+  const input = document.getElementById('subbarSearch');
+  const clear = document.getElementById('subbarClear');
+
+  input.addEventListener('input', () => {
+    searchTerm = input.value.trim().toLowerCase();
+    clear.classList.toggle('show', searchTerm.length > 0);
+    renderContent();
+  });
+
+  clear.addEventListener('click', () => {
+    input.value = '';
+    searchTerm = '';
+    clear.classList.remove('show');
+    renderContent();
+  });
+}
+
+function highlightPN(pn) {
+  if (!searchTerm || !pn.toLowerCase().includes(searchTerm)) return pn;
+  const idx = pn.toLowerCase().indexOf(searchTerm);
+  return pn.slice(0, idx)
+    + '<span class="pn-match">' + pn.slice(idx, idx + searchTerm.length) + '</span>'
+    + pn.slice(idx + searchTerm.length);
+}
+
+function filterItems(items) {
+  if (!searchTerm) return items;
+  return items.filter(item => item.pn.toLowerCase().includes(searchTerm));
+}
+
+function renderAll() {
+  renderSubbar();
+  renderSidebar();
+  renderCatSidebar();
+  renderContent();
+}
+
+renderAll();
