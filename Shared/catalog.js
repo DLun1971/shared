@@ -126,9 +126,9 @@ function renderContent() {
         });
       });
       let headerHtml = '<th class="report-cb-cell"></th>';
-      if (hasAnyImg) headerHtml += '<th class="col-img">IMG</th>';
+      if (hasAnyImg) headerHtml += '<th style="width:52px;text-align:center">IMG</th>';
       else headerHtml += '<th class="col-img">IMG</th>';
-      headerHtml += '<th class="col-pn">Part Number</th><th>Description</th>';
+      headerHtml += '<th style="width:130px">Part Number</th><th>Description</th>';
             headerHtml += activeCols.map(c =>
         '<th class="' + (textCols.has(c) ? '' : 'tc') + '">' + c + '</th>'
       ).join('');
