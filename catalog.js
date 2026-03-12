@@ -17,7 +17,7 @@ function getBadges(item) {
 }
 
 const COL_KEY = {
-  'IMPRES':'impres','IP68':'ip68','UL HazLoc':'ul','InAud':'intel',
+  'IMPRES':'impres','InAud':'intel',
   'Ion FW Req':'ion_fw','BT/Wireless':'bt','Full Duplex':'fulldx',
   'IP Rated':'ip','NRR':'nrr','Noise Cancel':'nc',
   'Wires':'wires','FW Required':'fw_req','NFC':'nfc','Emg Btn':'emg',
@@ -27,12 +27,26 @@ const COL_KEY = {
   'Ambient':'ambient','IMPRES 2':'impres2',
   'HazLoc':'hazloc',
   'IP':'ip',
+  'Chemistry':'chem',
+  'Power':'pwr_src',
+  'Noise Type':'noise_type',
+  'Style':'style',
+  'Coverage':'ears',
+  'Material':'material',
+  'Belt':'belt_sz',
+  'Swivel':'swivel',
+  'Band':'band',
+  'Freq':'freq_mhz',
+  'Ant Type':'ant_type',
+  'Length':'len_cm',
 };
 
 // Columns that display text values instead of checkmarks — sorted LEFT of checkmark cols
 const TEXT_VALUE_COLS = new Set([
   'NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets',
-  'IP68','HazLoc','UL HazLoc','IP'
+  'HazLoc','IP',
+  'Chemistry','Power','Noise Type','Style','Coverage',
+  'Material','Belt','Band','Freq','Ant Type','Length',
 ]);
 
 function colWidth(col) {
