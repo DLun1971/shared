@@ -1,4 +1,4 @@
-/* Motorola Accessory Catalog — Shared Rendering Engine — catalog.js */
+/* Motorola Accessory Catalog \u2014 Shared Rendering Engine \u2014 catalog.js */
 
 let activeRadio = null;
 let activeCat   = null;
@@ -42,7 +42,7 @@ const COL_KEY = {
   'Length':'len_cm',
 };
 
-// Columns that display text values instead of checkmarks — sorted LEFT of checkmark cols
+// Columns that display text values instead of checkmarks \u2014 sorted LEFT of checkmark cols
 const TEXT_VALUE_COLS = new Set([
   'NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets',
   'HazLoc','IP',
@@ -55,9 +55,9 @@ function colWidth(col) {
 }
 
 function ck(v) {
-  if (v === 1 || v === true)  return '<span class="ck">✓</span>';
-  if (v === 0 || v === false) return '<span class="dash">—</span>';
-  if (v === '—' || v === null || v === undefined) return '<span class="dash">—</span>';
+  if (v === 1 || v === true)  return '<span class="ck">\u2713</span>';
+  if (v === 0 || v === false) return '<span class="dash">\u2014</span>';
+  if (v === '\u2014' || v === null || v === undefined) return '<span class="dash">\u2014</span>';
   return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
 }
 
@@ -118,7 +118,7 @@ function buildItemData(item, cat, sec, radio) {
 
 function renderSpecCell(col, val) {
   if (TEXT_VALUE_COLS.has(col)) {
-    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
+    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">\u2014</span></td>';
     return '<td class="col-check tc"><span class="val-text">' + val + '</span></td>';
   }
   return '<td class="col-check tc">' + ck(val !== undefined ? val : 0) + '</td>';
@@ -214,7 +214,7 @@ function renderContent() {
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
+          return v !== undefined && v !== 0 && v !== false && v !== '\u2014' && v !== null;
         });
       });
 
@@ -334,7 +334,7 @@ function renderSubbar() {
     <div class="subbar-search-wrap">
       <span class="subbar-search-icon">🔍</span>
       <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
-      <span class="subbar-clear" id="subbarClear">✕</span>
+      <span class="subbar-clear" id="subbarClear">\u2715</span>
     </div>
   `;
   document.body.insertBefore(bar, document.querySelector('.page-body'));
