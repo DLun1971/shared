@@ -1,4 +1,4 @@
-/* Motorola Accessory Catalog '\u2014' Shared Rendering Engine '\u2014' catalog.js */
+/* Motorola Accessory Catalog — Shared Rendering Engine — catalog.js */
 
 let activeRadio = null;
 let activeCat   = null;
@@ -69,9 +69,9 @@ function renderCatSidebar() {
 }
 
 function ck(v) {
-  if (v === 1 || v === true)  return '<span class="ck">✓</span>';
-  if (v === 0 || v === false) return '<span class="dash">'\u2014'</span>';
-  if (v === ''\u2014'' || v === null || v === undefined) return '<span class="dash">'\u2014'</span>';
+  if (v === 1 || v === true)  return '<span class="ck">\u2713</span>';
+  if (v === 0 || v === false) return '<span class="dash">\u2014</span>';
+  if (v === '\u2014' || v === null || v === undefined) return '<span class="dash">\u2014</span>';
   return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
 }
 
@@ -89,7 +89,7 @@ function renderContent() {
   ).join('');
 
   let html = '<div class="radio-header">'
-    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">📻</span></div>'
+    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">\uD83D\uDCFB</span></div>'
     + '<div class="rh-info">'
     + '<div class="rh-name">' + radio.name + '</div>'
     + '<div class="rh-sub">' + radio.sub + '</div>'
@@ -106,7 +106,6 @@ function renderContent() {
     const items = filterItems(sec.items);
     if (!items.length) return;
 
-    // Determine current section title for report tray itemData
     const currentSectionTitle = sec.title;
 
     html += '<div class="acc-subsection">';
@@ -116,24 +115,21 @@ function renderContent() {
 
     if (!isReplacementSection && specCols.length > 0) {
 
-      // Determine whether any item in this section has an img value
       const hasAnyImg = items.some(item => item.img);
 
-      // Filter out spec columns where no item in this section has a truthy value
       const activeCols = specCols.filter(col => {
         const k = COL_KEY[col];
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== ''\u2014'' && v !== null;
+          return v !== undefined && v !== 0 && v !== false && v !== '\u2014' && v !== null;
         });
       });
-
-      // Build header: checkbox | [img] | Part Number | Description | ...specCols
       let headerHtml = '<th class="report-cb-cell"></th>';
-      if (hasAnyImg) headerHtml += '<th class="product-img-cell"></th>';
-      headerHtml += '<th>Part Number</th><th>Description</th>';
-      headerHtml += activeCols.map(c =>
+      if (hasAnyImg) headerHtml += '<th class="col-img">IMG</th>';
+      else headerHtml += '<th class="col-img">IMG</th>';
+      headerHtml += '<th class="col-pn">Part Number</th><th>Description</th>';
+            headerHtml += activeCols.map(c =>
         '<th class="' + (textCols.has(c) ? '' : 'tc') + '">' + c + '</th>'
       ).join('');
 
@@ -148,7 +144,7 @@ function renderContent() {
           const isText = textCols.has(col);
 
           if (col === 'UL HazLoc') {
-            if (!val || val === 0) return '<td class="tc"><span class="dash">'\u2014'</span></td>';
+            if (!val || val === 0) return '<td class="tc"><span class="dash">\u2014</span></td>';
             const label = typeof val === 'string' ? val : 'UL';
             return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + label + '</span></td>';
           }
@@ -159,7 +155,6 @@ function renderContent() {
 
         const noteHtml = item.note ? '<div class="td-note">' + item.note + '</div>' : '';
 
-        // Build itemData for report tray
         const itemData = {
           partNum:   item.pn,
           desc:      item.desc,
@@ -172,22 +167,19 @@ function renderContent() {
           img:       item.img    || null,
         };
 
-        // Checkbox cell
         const cbChecked = (typeof isSelected === 'function' && isSelected(item.pn)) ? 'checked' : '';
         const cbCell = '<td class="report-cb-cell">'
           + '<input type="checkbox" class="report-cb" value="' + item.pn + '" ' + cbChecked
           + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
           + '</td>';
 
-        // Image cell (only rendered if section has any img)
-        let imgCell = '';
-        if (hasAnyImg) {
-          if (item.img) {
-            imgCell = '<td class="product-img-cell"><img src="' + item.img
-              + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
-          } else {
-            imgCell = '<td class="product-img-cell"><<span class="no-img">&mdash;</span>/td>';
-          }
+     let imgCell = '';
+     if (item.img) {
+     imgCell = '<td class="col-img"><img src="' + item.img
+    + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
+    } else {
+    imgCell = '<td class="col-img"><div class="img-placeholder"></div></td>';
+       }
         }
 
         html += '<tr>'
@@ -201,13 +193,13 @@ function renderContent() {
       html += '</tbody></table></div>';
 
     } else {
-      // Simple list '\u2014' no spec columns (replacement sections or cats with no cols)
       html += '<table class="acc-table"><thead><tr>'
-        + '<th class="report-cb-cell"></th>'
-        + '<th style="width:130px">Part Number</th>'
-        + '<th>Description</th>'
-        + '<th style="width:260px">Notes</th>'
-        + '</tr></thead><tbody>';
+  + '<th class="report-cb-cell"></th>'
+  + '<th class="col-img">IMG</th>'
+  + '<th class="col-pn">Part Number</th>'
+  + '<th>Description</th>'
+  + '<th class="col-note">Notes</th>'
+  + '</tr></thead><tbody>';
 
       items.forEach(item => {
         const itemData = {
@@ -228,9 +220,10 @@ function renderContent() {
           + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
           + '</td>';
 
-        html += '<tr>'
+      html += '<tr>'
           + cbCell
-          + '<td><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td class="col-img"><div class="img-placeholder"></div></td>'
+          + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
           + '<td class="desc">' + item.desc + '</td>'
           + '<td class="note">' + (item.note || '') + '</td>'
           + '</tr>';
@@ -239,15 +232,14 @@ function renderContent() {
       html += '</tbody></table>';
     }
 
-    html += '</div>'; // .acc-subsection
+    html += '</div>';
   });
 
-  html += '</div>'; // .cat-section
+  html += '</div>';
   panel.innerHTML = html;
   panel.parentElement.scrollTop = 0;
 }
 
-// Safely serialize itemData for inline onchange attribute
 function escapeItemData(obj) {
   return "'" + JSON.stringify(obj).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
 }
@@ -255,7 +247,7 @@ function escapeItemData(obj) {
 function copyPN(pn) {
   navigator.clipboard.writeText(pn).catch(() => {});
   const t = document.getElementById('copyToast');
-  t.textContent = `"${pn}" copied!`;
+  t.textContent = '"' + pn + '" copied!';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 1800);
 }
@@ -267,13 +259,13 @@ function renderSubbar() {
   bar.className = 'subbar';
   bar.id = 'subbar';
   bar.innerHTML = `
-    <a class="subbar-home" href="../index.html">← Home</a>
+    <a class="subbar-home" href="../index.html">\u2190 Home</a>
     <div class="subbar-sep"></div>
     <div class="subbar-spacer"></div>
     <div class="subbar-search-wrap">
-      <span class="subbar-search-icon">🔍</span>
+      <span class="subbar-search-icon">\uD83D\uDD0D</span>
       <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
-      <span class="subbar-clear" id="subbarClear">✕</span>
+      <span class="subbar-clear" id="subbarClear">\u2715</span>
     </div>
   `;
   document.body.insertBefore(bar, document.querySelector('.page-body'));

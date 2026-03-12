@@ -349,6 +349,23 @@ body {
 .badge-orange { background: var(--trbo-lt); color: var(--trbo); border: 1px solid #fac7a0; }
 .badge-purple { background: var(--purple-lt); color: var(--purple); border: 1px solid #c4b5fd; }
 
+/* ── COLUMN WIDTHS ── */
+.acc-table { table-layout: fixed; }
+.col-img   { width: 52px;  text-align: center; }
+.col-pn    { width: 130px; }
+.col-note  { width: 160px; }
+.col-check { width: 36px;  text-align: center; padding-left: 4px; padding-right: 4px; }
+
+/* ── IMAGE PLACEHOLDER ── */
+.img-placeholder {
+  width: 36px;
+  height: 36px;
+  background: var(--bg2);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  margin: 0 auto;
+}
+
 /* ── COPY TOAST ── */
 .copy-toast {
   position: fixed; bottom: 24px; right: 24px; z-index: 9999;
