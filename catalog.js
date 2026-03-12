@@ -25,13 +25,14 @@ const COL_KEY = {
   'Pockets':'pockets','Recond.':'recondn',
   'AINS':'ains','WWet':'wwet','SmartSW':'smart_sw',
   'Ambient':'ambient','IMPRES 2':'impres2',
-  'HazLoc':'ul',
+  'HazLoc':'hazloc',
+  'IP':'ip',
 };
 
 // Columns that display text values instead of checkmarks — sorted LEFT of checkmark cols
 const TEXT_VALUE_COLS = new Set([
   'NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets',
-  'IP68','HazLoc','UL HazLoc'
+  'IP68','HazLoc','UL HazLoc','IP'
 ]);
 
 function colWidth(col) {
@@ -101,16 +102,9 @@ function buildItemData(item, cat, sec, radio) {
 }
 
 function renderSpecCell(col, val) {
-  if (col === 'HazLoc' || col === 'UL HazLoc') {
-    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
-    return '<td class="col-check tc"><span class="val-text">HazLoc</span></td>';
-  }
-  if (col === 'IP68') {
-    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
-    return '<td class="col-check tc"><span class="val-text">IP68</span></td>';
-  }
   if (TEXT_VALUE_COLS.has(col)) {
-    return '<td class="col-check tc"><span class="val-text">' + (val || '—') + '</span></td>';
+    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
+    return '<td class="col-check tc"><span class="val-text">' + val + '</span></td>';
   }
   return '<td class="col-check tc">' + ck(val !== undefined ? val : 0) + '</td>';
 }
@@ -254,7 +248,7 @@ function renderContent() {
         html += '<tr>'
           + cbCell
           + imgCell
-          + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">'+  highlightPN(item.pn) + '</span></td>'
           + '<td style="min-width:220px;text-align:center;vertical-align:middle">'
           +   '<div class="td-main">' + item.desc + '</div>' + noteHtml
           + '</td>'
@@ -292,7 +286,7 @@ function renderContent() {
         html += '<tr>'
           + cbCell
           + imgCell
-          + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">'+  highlightPN(item.pn) + '</span></td>'
           + '<td style="min-width:220px;text-align:center;vertical-align:middle">'
           +   '<div class="td-main">' + item.desc + '</div>'
           +   (item.note ? '<div class="td-note">' + item.note + '</div>' : '')
