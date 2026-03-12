@@ -5,14 +5,14 @@ let activeCat   = null;
 let searchTerm  = '';
 
 function getBadges(item) {
-  const txt = (item.desc + ' ' + (item.note||'')).toLowerCase();
+  const txt = (item.desc + ' ' + (item.note || '')).toLowerCase();
   const badges = [];
-  if (txt.includes('impres'))                              badges.push('<span class="badge badge-impres">IMPRES</span>');
-  if (txt.includes('ip68'))                                badges.push('<span class="badge badge-ip68">IP68</span>');
-  else if (txt.includes('ip67'))                           badges.push('<span class="badge badge-ip67">IP67</span>');
-  else if (txt.includes('ip66'))                           badges.push('<span class="badge badge-ip66">IP66</span>');
-  else if (txt.includes('ip54'))                           badges.push('<span class="badge badge-ip54">IP54</span>');
-  if (txt.includes('ul hazloc') || txt.includes('ul '))    badges.push('<span class="badge badge-ul">UL</span>');
+  if (txt.includes('impres'))                           badges.push('<span class="badge badge-impres">IMPRES</span>');
+  if (txt.includes('ip68'))                             badges.push('<span class="badge badge-ip68">IP68</span>');
+  else if (txt.includes('ip67'))                        badges.push('<span class="badge badge-ip67">IP67</span>');
+  else if (txt.includes('ip66'))                        badges.push('<span class="badge badge-ip66">IP66</span>');
+  else if (txt.includes('ip54'))                        badges.push('<span class="badge badge-ip54">IP54</span>');
+  if (txt.includes('ul hazloc') || txt.includes('ul ')) badges.push('<span class="badge badge-ul">UL</span>');
   return badges.join('');
 }
 
@@ -26,6 +26,68 @@ const COL_KEY = {
   'AINS':'ains','WWet':'wwet','SmartSW':'smart_sw',
   'Ambient':'ambient','IMPRES 2':'impres2',
 };
+
+function ck(v) {
+  if (v === 1 || v === true)  return '<span class="ck">✓</span>';
+  if (v === 0 || v === false) return '<span class="dash">—</span>';
+  if (v === '—' || v === null || v === undefined) return '<span class="dash">—</span>';
+  return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
+}
+
+function escapeItemData(obj) {
+  return "'" + JSON.stringify(obj).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+}
+
+function copyPN(pn) {
+  navigator.clipboard.writeText(pn).catch(() => {});
+  const t = document.getElementById('copyToast');
+  t.textContent = '"' + pn + '" copied!';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function highlightPN(pn) {
+  if (!searchTerm || !pn.toLowerCase().includes(searchTerm)) return pn;
+  const idx = pn.toLowerCase().indexOf(searchTerm);
+  return pn.slice(0, idx)
+    + '<span class="pn-match">' + pn.slice(idx, idx + searchTerm.length) + '</span>'
+    + pn.slice(idx + searchTerm.length);
+}
+
+function filterItems(items) {
+  if (!searchTerm) return items;
+  return items.filter(item => item.pn.toLowerCase().includes(searchTerm));
+}
+
+function buildImgCell(item) {
+  if (item.img) {
+    return '<td class="col-img"><img src="' + item.img
+      + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
+  }
+  return '<td class="col-img"><div class="img-placeholder"></div></td>';
+}
+
+function buildCbCell(item, itemData) {
+  const cbChecked = (typeof isSelected === 'function' && isSelected(item.pn)) ? 'checked' : '';
+  return '<td class="report-cb-cell">'
+    + '<input type="checkbox" class="report-cb" value="' + item.pn + '" ' + cbChecked
+    + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
+    + '</td>';
+}
+
+function buildItemData(item, cat, sec, radio) {
+  return {
+    partNum:  item.pn,
+    desc:     item.desc,
+    note:     item.note  || null,
+    category: cat.label,
+    section:  sec.title,
+    catalog:  (typeof CATALOG_NAME !== 'undefined') ? CATALOG_NAME : (CATALOG_TITLE || ''),
+    radio:    radio.name,
+    checks:   item.checks || {},
+    img:      item.img    || null,
+  };
+}
 
 function renderSidebar() {
   const sb = document.getElementById('radioSidebar');
@@ -68,19 +130,12 @@ function renderCatSidebar() {
   });
 }
 
-function ck(v) {
-  if (v === 1 || v === true)  return '<span class="ck">\u2713</span>';
-  if (v === 0 || v === false) return '<span class="dash">\u2014</span>';
-  if (v === '\u2014' || v === null || v === undefined) return '<span class="dash">\u2014</span>';
-  return '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + v + '</span>';
-}
-
 function renderContent() {
   const panel = document.getElementById('contentInner');
   const radio = RADIOS[activeRadio];
   const cat   = radio.categories[activeCat];
   const total = cat.sections.reduce((s, sec) => s + sec.items.length, 0);
-  const cols  = cat.cols || null;
+  const cols     = cat.cols || null;
   const specCols = cols ? cols.slice(2) : [];
   const textCols = new Set(['NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets']);
 
@@ -89,7 +144,7 @@ function renderContent() {
   ).join('');
 
   let html = '<div class="radio-header">'
-    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">\uD83D\uDCFB</span></div>'
+    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">📻</span></div>'
     + '<div class="rh-info">'
     + '<div class="rh-name">' + radio.name + '</div>'
     + '<div class="rh-sub">' + radio.sub + '</div>'
@@ -106,122 +161,104 @@ function renderContent() {
     const items = filterItems(sec.items);
     if (!items.length) return;
 
-    const currentSectionTitle = sec.title;
+    const isReplacementSection = sec.title.toLowerCase().includes('replacement');
+    const useSpecTable = !isReplacementSection && specCols.length > 0;
 
     html += '<div class="acc-subsection">';
     html += '<div class="acc-subsection-title">' + sec.title + '</div>';
 
-    const isReplacementSection = sec.title.toLowerCase().includes('replacement');
-
-    if (!isReplacementSection && specCols.length > 0) {
-
-      const hasAnyImg = items.some(item => item.img);
+    if (useSpecTable) {
 
       const activeCols = specCols.filter(col => {
         const k = COL_KEY[col];
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '\u2014' && v !== null;
+          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
         });
       });
-      let headerHtml = '<th class="report-cb-cell"></th>';
-      if (hasAnyImg) headerHtml += '<th style="width:52px;text-align:center">IMG</th>';
-      else headerHtml += '<th class="col-img">IMG</th>';
-      headerHtml += '<th style="width:130px">Part Number</th><th>Description</th>';
-            headerHtml += activeCols.map(c =>
-        '<th class="' + (textCols.has(c) ? '' : 'tc') + '">' + c + '</th>'
-      ).join('');
+
+      const headerHtml = ''
+        + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
+        + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
+        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th>'
+        + '<th>Description</th>'
+        + activeCols.map(c =>
+            '<th class="col-check' + (textCols.has(c) ? '' : ' tc') + '" style="width:36px;min-width:36px;max-width:36px">' + c + '</th>'
+          ).join('');
+
+      const colgroupHtml = '<colgroup>'
+        + '<col style="width:28px;min-width:28px;max-width:28px">'
+        + '<col style="width:52px;min-width:52px;max-width:52px">'
+        + '<col style="width:130px;min-width:130px;max-width:130px">'
+        + '<col>'
+        + activeCols.map(() => '<col style="width:36px;min-width:36px;max-width:36px">').join('')
+        + '</colgroup>';
 
       html += '<div class="table-wrap"><table>'
+        + colgroupHtml
         + '<thead><tr>' + headerHtml + '</tr></thead>'
         + '<tbody>';
 
       items.forEach(item => {
+        const itemData = buildItemData(item, cat, sec, radio);
+        const cbCell   = buildCbCell(item, itemData);
+        const imgCell  = buildImgCell(item);
+        const noteHtml = item.note ? '<div class="td-note">' + item.note + '</div>' : '';
+
         const specCells = activeCols.map(col => {
-          const k = COL_KEY[col];
+          const k   = COL_KEY[col];
           const val = (item.checks && k !== undefined) ? item.checks[k] : undefined;
-          const isText = textCols.has(col);
 
           if (col === 'UL HazLoc') {
-            if (!val || val === 0) return '<td class="tc"><span class="dash">\u2014</span></td>';
+            if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
             const label = typeof val === 'string' ? val : 'UL';
             return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + label + '</span></td>';
           }
 
-          if (isText) return '<td style="font-size:12px;color:var(--text2)">' + ck(val) + '</td>';
+          if (textCols.has(col)) return '<td style="font-size:12px;color:var(--text2)">' + ck(val) + '</td>';
           return '<td class="tc">' + ck(val !== undefined ? val : 0) + '</td>';
         }).join('');
 
-        const noteHtml = item.note ? '<div class="td-note">' + item.note + '</div>' : '';
-
-        const itemData = {
-          partNum:   item.pn,
-          desc:      item.desc,
-          note:      item.note  || null,
-          category:  cat.label,
-          section:   currentSectionTitle,
-          catalog:   (typeof CATALOG_NAME !== 'undefined') ? CATALOG_NAME : (CATALOG_TITLE || ''),
-          radio:     radio.name,
-          checks:    item.checks || {},
-          img:       item.img    || null,
-        };
-
-        const cbChecked = (typeof isSelected === 'function' && isSelected(item.pn)) ? 'checked' : '';
-        const cbCell = '<td class="report-cb-cell">'
-          + '<input type="checkbox" class="report-cb" value="' + item.pn + '" ' + cbChecked
-          + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
-          + '</td>';
-
-     let imgCell = '';
-     if (item.img) {
-     imgCell = '<td class="col-img"><img src="' + item.img
-    + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
-    } else {
-    imgCell = '<td class="col-img"><div class="img-placeholder"></div></td>';
-       }
-        
         html += '<tr>'
           + cbCell
           + imgCell
           + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
           + '<td><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
-          + specCells + '</tr>';
+          + specCells
+          + '</tr>';
       });
 
       html += '</tbody></table></div>';
 
     } else {
-      html += '<table class="acc-table"><thead><tr>'
-  + '<th class="report-cb-cell"></th>'
-  + '<th class="col-img">IMG</th>'
-  + '<th class="col-pn">Part Number</th>'
-  + '<th>Description</th>'
-  + '<th class="col-note">Notes</th>'
-  + '</tr></thead><tbody>';
+
+      const colgroupHtml = '<colgroup>'
+        + '<col style="width:28px;min-width:28px;max-width:28px">'
+        + '<col style="width:52px;min-width:52px;max-width:52px">'
+        + '<col style="width:130px;min-width:130px;max-width:130px">'
+        + '<col>'
+        + '<col style="width:80px;min-width:80px;max-width:80px">'
+        + '</colgroup>';
+
+      html += '<table class="acc-table">'
+        + colgroupHtml
+        + '<thead><tr>'
+        + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
+        + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
+        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th>'
+        + '<th>Description</th>'
+        + '<th class="col-note" style="width:80px;min-width:80px;max-width:80px">Notes</th>'
+        + '</tr></thead><tbody>';
 
       items.forEach(item => {
-        const itemData = {
-          partNum:   item.pn,
-          desc:      item.desc,
-          note:      item.note  || null,
-          category:  cat.label,
-          section:   currentSectionTitle,
-          catalog:   (typeof CATALOG_NAME !== 'undefined') ? CATALOG_NAME : (CATALOG_TITLE || ''),
-          radio:     radio.name,
-          checks:    item.checks || {},
-          img:       item.img    || null,
-        };
+        const itemData = buildItemData(item, cat, sec, radio);
+        const cbCell   = buildCbCell(item, itemData);
+        const imgCell  = buildImgCell(item);
 
-        const cbChecked = (typeof isSelected === 'function' && isSelected(item.pn)) ? 'checked' : '';
-        const cbCell = '<td class="report-cb-cell">'
-          + '<input type="checkbox" class="report-cb" value="' + item.pn + '" ' + cbChecked
-          + ' onchange="handleReportCheckbox(this,' + escapeItemData(itemData) + ')">'
-          + '</td>';
-
-      html += '<tr>'
+        html += '<tr>'
           + cbCell
-          + '<td class="col-img"><div class="img-placeholder"></div></td>'
+          + imgCell
           + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
           + '<td class="desc">' + item.desc + '</td>'
           + '<td class="note">' + (item.note || '') + '</td>'
@@ -239,18 +276,6 @@ function renderContent() {
   panel.parentElement.scrollTop = 0;
 }
 
-function escapeItemData(obj) {
-  return "'" + JSON.stringify(obj).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
-}
-
-function copyPN(pn) {
-  navigator.clipboard.writeText(pn).catch(() => {});
-  const t = document.getElementById('copyToast');
-  t.textContent = '"' + pn + '" copied!';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1800);
-}
-
 function renderSubbar() {
   const existing = document.getElementById('subbar');
   if (existing) return;
@@ -258,13 +283,13 @@ function renderSubbar() {
   bar.className = 'subbar';
   bar.id = 'subbar';
   bar.innerHTML = `
-    <a class="subbar-home" href="../index.html">\u2190 Home</a>
+    <a class="subbar-home" href="../index.html">← Home</a>
     <div class="subbar-sep"></div>
     <div class="subbar-spacer"></div>
     <div class="subbar-search-wrap">
-      <span class="subbar-search-icon">\uD83D\uDD0D</span>
+      <span class="subbar-search-icon">🔍</span>
       <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
-      <span class="subbar-clear" id="subbarClear">\u2715</span>
+      <span class="subbar-clear" id="subbarClear">✕</span>
     </div>
   `;
   document.body.insertBefore(bar, document.querySelector('.page-body'));
@@ -284,19 +309,6 @@ function renderSubbar() {
     clear.classList.remove('show');
     renderContent();
   });
-}
-
-function highlightPN(pn) {
-  if (!searchTerm || !pn.toLowerCase().includes(searchTerm)) return pn;
-  const idx = pn.toLowerCase().indexOf(searchTerm);
-  return pn.slice(0, idx)
-    + '<span class="pn-match">' + pn.slice(idx, idx + searchTerm.length) + '</span>'
-    + pn.slice(idx + searchTerm.length);
-}
-
-function filterItems(items) {
-  if (!searchTerm) return items;
-  return items.filter(item => item.pn.toLowerCase().includes(searchTerm));
 }
 
 function renderAll() {
