@@ -259,11 +259,6 @@ body {
   border-left: 3px solid var(--border2);
 }
 
-/* ── DESCRIPTION COLUMN ── */
-col.col-desc   { min-width: 220px; width: auto; }
-th.col-desc    { min-width: 220px; white-space: normal; word-break: break-word; }
-td.col-desc    { min-width: 220px; text-align: center; vertical-align: middle; }
-
 /* ── ACCESSORY TABLE (Path 2 — simple/replacement) ── */
 .acc-table {
   width: 100%; border-collapse: collapse; table-layout: fixed;
@@ -285,13 +280,13 @@ td.col-desc    { min-width: 220px; text-align: center; vertical-align: middle; }
   vertical-align: middle;
   text-align: center;
 }
-.acc-table tr:last-child td   { border-bottom: none; }
+.acc-table tr:last-child td    { border-bottom: none; }
 .acc-table tr:nth-child(even) td { background: var(--surface2); }
-.acc-table tr:hover td         { background: var(--acc-lt); }
-.acc-table .col-img   { width: 52px;  min-width: 52px;  max-width: 52px;  text-align: center; }
-.acc-table .col-pn    { width: 130px; min-width: 130px; max-width: 130px; text-align: center; }
-.acc-table .col-note  { width: 160px; min-width: 160px; max-width: 160px; text-align: center; }
-.acc-table .col-check { width: 64px;  min-width: 64px;  max-width: 64px;  text-align: center; padding-left: 2px; padding-right: 2px; }
+.acc-table tr:hover td          { background: var(--acc-lt); }
+.acc-table .col-img   { width: 52px;  min-width: 52px;  max-width: 52px; }
+.acc-table .col-pn    { width: 130px; min-width: 130px; max-width: 130px; }
+.acc-table .col-note  { width: 160px; min-width: 160px; max-width: 160px; }
+.acc-table .col-check { width: 64px;  min-width: 64px;  max-width: 64px;  padding: 2px; }
 
 /* ── FEATURE TABLE (Path 1 — spec table) ── */
 .table-wrap {
@@ -318,15 +313,11 @@ td.col-desc    { min-width: 220px; text-align: center; vertical-align: middle; }
 .table-wrap tbody tr  { border-bottom: 1px solid var(--border); transition: background 0.1s; }
 .table-wrap tbody tr:last-child { border-bottom: none; }
 .table-wrap tbody tr:hover { background: var(--bg); cursor: pointer; }
-.table-wrap td {
-  padding: 10px 12px;
-  vertical-align: middle;
-  text-align: center;
-}
-.table-wrap .col-img   { width: 52px;  min-width: 52px;  max-width: 52px;  text-align: center; }
-.table-wrap .col-pn    { width: 130px; min-width: 130px; max-width: 130px; text-align: center; }
-.table-wrap .col-note  { width: 160px; min-width: 160px; max-width: 160px; text-align: center; }
-.table-wrap .col-check { width: 64px;  min-width: 64px;  max-width: 64px;  text-align: center; padding-left: 2px; padding-right: 2px; }
+.table-wrap td { padding: 10px 12px; vertical-align: middle; text-align: center; }
+.table-wrap .col-img   { width: 52px;  min-width: 52px;  max-width: 52px; }
+.table-wrap .col-pn    { width: 130px; min-width: 130px; max-width: 130px; }
+.table-wrap .col-note  { width: 160px; min-width: 160px; max-width: 160px; }
+.table-wrap .col-check { width: 64px;  min-width: 64px;  max-width: 64px;  padding: 2px; }
 
 /* sticky first column */
 .table-wrap td:nth-child(1),
@@ -338,13 +329,13 @@ td.col-desc    { min-width: 220px; text-align: center; vertical-align: middle; }
 .table-wrap thead th:nth-child(1) { background: var(--bg2); }
 
 /* ── SHARED COLUMN HELPERS ── */
-.col-check { width: 64px; min-width: 64px; max-width: 64px; text-align: center; padding-left: 2px; padding-right: 2px; }
-.col-img   { width: 52px; text-align: center; }
+.col-check { width: 64px; min-width: 64px; max-width: 64px; text-align: center; padding: 2px; }
+.col-img   { width: 52px;  text-align: center; }
 .col-pn    { width: 130px; text-align: center; }
 .col-note  { width: 160px; text-align: center; }
 .tc        { text-align: center; }
 
-/* ── DESCRIPTION + NOTE CELL CONTENT ── */
+/* ── DESCRIPTION + NOTE CONTENT ── */
 .td-main {
   font-weight: 500; color: var(--text);
   line-height: 1.4; white-space: normal;
@@ -366,7 +357,7 @@ td.col-desc    { min-width: 220px; text-align: center; vertical-align: middle; }
   color: var(--dim); background: var(--surface2);
 }
 
-/* ── VALUE TEXT (text-value spec cells) ── */
+/* ── VALUE TEXT ── */
 .val-text {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px; color: var(--muted); white-space: nowrap;
