@@ -358,10 +358,10 @@ body {
 
 /* ── IMAGE PLACEHOLDER ── */
 .img-placeholder {
-  width: 36px;
-  height: 36px;
-  background: var(--bg2);
-  border: 1px dashed var(--border);
+  width: 44px;
+  height: 44px;
+  background: #ff0000;   /* red — just for testing */
+  border: 1px dashed #000;
   border-radius: 4px;
   margin: 0 auto;
 }

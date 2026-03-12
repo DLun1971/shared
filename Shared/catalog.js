@@ -125,17 +125,27 @@ function renderContent() {
           return v !== undefined && v !== 0 && v !== false && v !== '\u2014' && v !== null;
         });
       });
-      let headerHtml = '<th class="report-cb-cell"></th>';
-      if (hasAnyImg) headerHtml += '<th style="width:52px;text-align:center">IMG</th>';
-      else headerHtml += '<th class="col-img">IMG</th>';
-      headerHtml += '<th style="width:130px">Part Number</th><th>Description</th>';
-            headerHtml += activeCols.map(c =>
-        '<th class="' + (textCols.has(c) ? '' : 'tc') + '">' + c + '</th>'
-      ).join('');
+let headerHtml = '<th class="report-cb-cell"></th>';
+if (hasAnyImg) headerHtml += '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>';
+else headerHtml += '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>';
+headerHtml += '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th><th>Description</th>';
+headerHtml += activeCols.map(c =>
+  '<th class="' + (textCols.has(c) ? '' : 'tc') + ' col-check" style="width:36px;min-width:36px;max-width:36px">' + c + '</th>'
+).join('');
 
-      html += '<div class="table-wrap"><table>'
-        + '<thead><tr>' + headerHtml + '</tr></thead>'
-        + '<tbody>';
+// Build colgroup to match column order
+let colgroupHtml = '<colgroup>'
+  + '<col style="width:28px">'                          // report-cb-cell
+  + '<col style="width:52px;min-width:52px;max-width:52px">'  // IMG
+  + '<col style="width:130px;min-width:130px;max-width:130px">' // Part Number
+  + '<col>'                                             // Description — fills remainder
+  + activeCols.map(() => '<col style="width:36px;min-width:36px;max-width:36px">').join('')
+  + '</colgroup>';
+
+html += '<div class="table-wrap"><table>'
+  + colgroupHtml
+  + '<thead><tr>' + headerHtml + '</tr></thead>'
+  + '<tbody>';
 
       items.forEach(item => {
         const specCells = activeCols.map(col => {
