@@ -28,6 +28,9 @@ const COL_KEY = {
   'HazLoc':'ul',
 };
 
+// Columns that return text values rather than checkmarks — sorted to the left
+const TEXT_VALUE_COLS = new Set(['NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets','IP68','HazLoc']);
+
 function ck(v) {
   if (v === 1 || v === true)  return '<span class="ck">✓</span>';
   if (v === 0 || v === false) return '<span class="dash">—</span>';
@@ -90,27 +93,27 @@ function buildItemData(item, cat, sec, radio) {
   };
 }
 
-// Render a spec column cell — handles special cases for HazLoc and IP columns
-function renderSpecCell(col, val, textCols) {
-  // HazLoc — show text label instead of checkmark
+// Render a spec column cell — handles special display for text-value columns
+function renderSpecCell(col, val) {
   if (col === 'HazLoc') {
-    if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
-    return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">HazLoc</span></td>';
+    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
+    return '<td class="col-check tc"><span class="val-text">HazLoc</span></td>';
   }
-
-  // IP68 column — show full IP string instead of checkmark
   if (col === 'IP68') {
-    if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
-    return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">IP68</span></td>';
+    if (!val || val === 0) return '<td class="col-check tc"><span class="dash">—</span></td>';
+    return '<td class="col-check tc"><span class="val-text">IP68</span></td>';
   }
-
-  // Text value columns
-  if (textCols.has(col)) {
-    return '<td style="font-size:12px;color:var(--text2)">' + ck(val) + '</td>';
+  if (TEXT_VALUE_COLS.has(col)) {
+    return '<td class="col-check tc"><span class="val-text">' + (val || '—') + '</span></td>';
   }
+  return '<td class="col-check tc">' + ck(val !== undefined ? val : 0) + '</td>';
+}
 
-  // Standard checkmark column
-  return '<td class="tc">' + ck(val !== undefined ? val : 0) + '</td>';
+function sortCols(cols) {
+  // Text-value columns first, then checkmark columns
+  const text  = cols.filter(c => TEXT_VALUE_COLS.has(c));
+  const check = cols.filter(c => !TEXT_VALUE_COLS.has(c));
+  return [...text, ...check];
 }
 
 function renderSidebar() {
@@ -161,7 +164,6 @@ function renderContent() {
   const total = cat.sections.reduce((s, sec) => s + sec.items.length, 0);
   const cols     = cat.cols || null;
   const specCols = cols ? cols.slice(2) : [];
-  const textCols = new Set(['NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets']);
 
   const tagHtml = radio.tags.map((t, i) =>
     '<span class="rh-tag ' + (radio.tagStyles[i] || '') + '">' + t + '</span>'
@@ -193,7 +195,7 @@ function renderContent() {
 
     if (useSpecTable) {
 
-      const activeCols = specCols.filter(col => {
+      const rawActiveCols = specCols.filter(col => {
         const k = COL_KEY[col];
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
@@ -202,21 +204,26 @@ function renderContent() {
         });
       });
 
+      // Text-value cols on left, checkmark cols on right
+      const activeCols = sortCols(rawActiveCols);
+
+      const colWidth = '48px';
+
       const headerHtml = ''
         + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
         + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
-        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th>'
-        + '<th>Description</th>'
+        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
+        + '<th style="max-width:300px;text-align:center">Description</th>'
         + activeCols.map(c =>
-            '<th class="col-check' + (textCols.has(c) ? '' : ' tc') + '" style="width:36px;min-width:36px;max-width:36px">' + c + '</th>'
+            '<th class="col-check tc" style="width:' + colWidth + ';min-width:' + colWidth + ';max-width:' + colWidth + ';text-align:center">' + c + '</th>'
           ).join('');
 
       const colgroupHtml = '<colgroup>'
         + '<col style="width:28px;min-width:28px;max-width:28px">'
         + '<col style="width:52px;min-width:52px;max-width:52px">'
         + '<col style="width:130px;min-width:130px;max-width:130px">'
-        + '<col>'
-        + activeCols.map(() => '<col style="width:36px;min-width:36px;max-width:36px">').join('')
+        + '<col style="max-width:300px">'
+        + activeCols.map(() => '<col style="width:' + colWidth + ';min-width:' + colWidth + ';max-width:' + colWidth + '">').join('')
         + '</colgroup>';
 
       html += '<div class="table-wrap"><table>'
@@ -233,14 +240,14 @@ function renderContent() {
         const specCells = activeCols.map(col => {
           const k   = COL_KEY[col];
           const val = (item.checks && k !== undefined) ? item.checks[k] : undefined;
-          return renderSpecCell(col, val, textCols);
+          return renderSpecCell(col, val);
         }).join('');
 
         html += '<tr>'
           + cbCell
           + imgCell
-          + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
+          + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td style="max-width:300px"><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
           + specCells
           + '</tr>';
       });
@@ -253,7 +260,7 @@ function renderContent() {
         + '<col style="width:28px;min-width:28px;max-width:28px">'
         + '<col style="width:52px;min-width:52px;max-width:52px">'
         + '<col style="width:130px;min-width:130px;max-width:130px">'
-        + '<col>'
+        + '<col style="max-width:300px">'
         + '<col style="width:80px;min-width:80px;max-width:80px">'
         + '</colgroup>';
 
@@ -262,9 +269,9 @@ function renderContent() {
         + '<thead><tr>'
         + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
         + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
-        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th>'
-        + '<th>Description</th>'
-        + '<th class="col-note" style="width:80px;min-width:80px;max-width:80px">Notes</th>'
+        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
+        + '<th style="max-width:300px;text-align:center">Description</th>'
+        + '<th class="col-note" style="width:80px;min-width:80px;max-width:80px;text-align:center">Notes</th>'
         + '</tr></thead><tbody>';
 
       items.forEach(item => {
@@ -275,9 +282,9 @@ function renderContent() {
         html += '<tr>'
           + cbCell
           + imgCell
-          + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td class="desc">' + item.desc + '</td>'
-          + '<td class="note">' + (item.note || '') + '</td>'
+          + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
+          + '<td class="desc" style="max-width:300px">' + item.desc + '</td>'
+          + '<td class="note" style="text-align:center">' + (item.note || '') + '</td>'
           + '</tr>';
       });
 
