@@ -1,16 +1,6 @@
 /* ============================================================
    MOTOROLA ACCESSORY CATALOG — Shared Stylesheet
    styles.css
-   Used by: PCR, Astro, and Tetra catalog pages
-   ============================================================ */
-
-/* ── CATALOG ACCENT COLOR VARIABLES ──
-   Override these per catalog by adding a <style> block
-   in each HTML file after the stylesheet link:
-
-   PCR Catalog:   --acc: #2563eb;  --acc-lt: #e8f0fc;  --acc-dark: #003d82;
-   Astro Catalog: --acc: #7c3aed;  --acc-lt: #ede9fe;  --acc-dark: #4c1d95;
-   Tetra Catalog: --acc: #0f7a50;  --acc-lt: #e6f6ef;  --acc-dark: #064e35;
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,11 +39,9 @@
   --radius-sm: 5px;
   --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-
-  /* Default accent = PCR Blue — override per catalog */
-  --acc:      #2563eb;
-  --acc-lt:   #e8f0fc;
-  --acc-dark: #003d82;
+  --acc:       #2563eb;
+  --acc-lt:    #e8f0fc;
+  --acc-dark:  #003d82;
 }
 
 html { scroll-behavior: smooth; }
@@ -129,17 +117,11 @@ body {
   width: 100%; outline: none;
 }
 .subbar-search::placeholder { color: var(--dim); }
-.subbar-clear {
-  font-size: 11px; color: var(--muted);
-  cursor: pointer; padding: 0 2px;
-  display: none;
-}
+.subbar-clear { font-size: 11px; color: var(--muted); cursor: pointer; padding: 0 2px; display: none; }
 .subbar-clear.show { display: block; }
-
-/* search highlight */
 .pn-match { background: #fef08a; border-radius: 2px; }
 
-/* ── PAGE BODY — offset for topbar + subbar ── */
+/* ── PAGE BODY ── */
 .page-body {
   display: flex;
   margin-top: 92px !important;
@@ -155,11 +137,7 @@ body {
   display: flex; flex-direction: column;
   overflow-y: auto; height: 100%;
 }
-.rs-logo-row {
-  padding: 16px 16px 12px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
+.rs-logo-row { padding: 16px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .rs-logo-row p { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
 .rs-group-label {
   font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
@@ -219,8 +197,8 @@ body {
 .cat-btn.active .cb-label { color: var(--acc); font-weight: 600; }
 
 /* ── PANEL 3 — CONTENT ── */
-.content-panel  { flex: 1; min-width: 0; overflow-y: auto; height: 100%; background: var(--bg); }
-.content-inner  { padding: 24px; max-width: 1400px; }
+.content-panel { flex: 1; min-width: 0; overflow-y: auto; height: 100%; background: var(--bg); }
+.content-inner { padding: 24px; max-width: 1400px; }
 
 /* ── RADIO HEADER ── */
 .radio-header {
@@ -235,10 +213,8 @@ body {
 .rh-img-wrap {
   width: 90px; height: 110px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: #fff;
-  border: 2px solid var(--acc);
-  border-radius: 8px;
-  overflow: hidden;
+  background: #fff; border: 2px solid var(--acc);
+  border-radius: 8px; overflow: hidden;
 }
 .rh-img             { width: 100%; height: 100%; object-fit: contain; display: block; }
 .rh-img-placeholder { font-size: 3rem; color: var(--dim); }
@@ -249,8 +225,7 @@ body {
 .rh-tag {
   font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
   padding: 3px 9px; border-radius: 4px;
-  background: var(--acc-lt); color: var(--acc);
-  border: 1px solid #bdd5f7;
+  background: var(--acc-lt); color: var(--acc); border: 1px solid #bdd5f7;
 }
 .rh-tag.orange { background: var(--trbo-lt);   color: var(--trbo);   border-color: #fac7a0; }
 .rh-tag.green  { background: var(--green-lt);  color: var(--green);  border-color: #9fdcbe; }
@@ -284,42 +259,39 @@ body {
   border-left: 3px solid var(--border2);
 }
 
-/* ── ACCESSORY TABLE (Path 2 — simple) ── */
+/* ── DESCRIPTION COLUMN ── */
+col.col-desc   { min-width: 220px; width: auto; }
+th.col-desc    { min-width: 220px; white-space: normal; word-break: break-word; }
+td.col-desc    { min-width: 220px; text-align: center; vertical-align: middle; }
+
+/* ── ACCESSORY TABLE (Path 2 — simple/replacement) ── */
 .acc-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  font-size: 12.5px;
+  width: 100%; border-collapse: collapse; table-layout: fixed;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); font-size: 12.5px;
 }
 .acc-table th {
-  background: var(--bg2);
-  color: var(--muted);
+  background: var(--bg2); color: var(--muted);
   font-size: 10px; font-weight: 700;
   letter-spacing: 0.8px; text-transform: uppercase;
-  padding: 8px 12px;
-  text-align: center;
-  white-space: normal;
-  word-break: break-word;
+  padding: 8px 12px; text-align: center;
+  white-space: normal; word-break: break-word;
   border-bottom: 1px solid var(--border);
 }
 .acc-table td {
   padding: 9px 12px;
   border-bottom: 1px solid var(--border);
-  vertical-align: top;
-  text-align: left;
+  vertical-align: middle;
+  text-align: center;
 }
-.acc-table tr:last-child td  { border-bottom: none; }
+.acc-table tr:last-child td   { border-bottom: none; }
 .acc-table tr:nth-child(even) td { background: var(--surface2); }
-.acc-table tr:hover td        { background: var(--acc-lt); }
+.acc-table tr:hover td         { background: var(--acc-lt); }
 .acc-table .col-img   { width: 52px;  min-width: 52px;  max-width: 52px;  text-align: center; }
-.acc-table .col-pn    { width: 130px; min-width: 130px; max-width: 130px; }
-.acc-table .col-note  { width: 160px; min-width: 160px; max-width: 160px; text-align: left; }
-.acc-table .col-check { width: 48px;  min-width: 48px;  max-width: 48px;  text-align: center; padding-left: 2px; padding-right: 2px; }
+.acc-table .col-pn    { width: 130px; min-width: 130px; max-width: 130px; text-align: center; }
+.acc-table .col-note  { width: 160px; min-width: 160px; max-width: 160px; text-align: center; }
+.acc-table .col-check { width: 64px;  min-width: 64px;  max-width: 64px;  text-align: center; padding-left: 2px; padding-right: 2px; }
 
 /* ── FEATURE TABLE (Path 1 — spec table) ── */
 .table-wrap {
@@ -332,20 +304,15 @@ body {
   position: relative;
 }
 .table-wrap table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-  table-layout: fixed;
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px; table-layout: fixed;
 }
 .table-wrap thead tr  { background: var(--bg2); border-bottom: 2px solid var(--border); }
 .table-wrap thead th {
-  padding: 8px 12px;
-  text-align: center;
+  padding: 8px 12px; text-align: center;
   font-size: 10px; font-weight: 700;
   letter-spacing: 0.8px; text-transform: uppercase;
-  color: var(--muted);
-  white-space: normal;
-  word-break: break-word;
+  color: var(--muted); white-space: normal; word-break: break-word;
 }
 .table-wrap thead th.col-check { padding: 8px 4px; }
 .table-wrap tbody tr  { border-bottom: 1px solid var(--border); transition: background 0.1s; }
@@ -354,12 +321,12 @@ body {
 .table-wrap td {
   padding: 10px 12px;
   vertical-align: middle;
-  text-align: left;
+  text-align: center;
 }
 .table-wrap .col-img   { width: 52px;  min-width: 52px;  max-width: 52px;  text-align: center; }
-.table-wrap .col-pn    { width: 130px; min-width: 130px; max-width: 130px; }
-.table-wrap .col-note  { width: 160px; min-width: 160px; max-width: 160px; text-align: left; }
-.table-wrap .col-check { width: 48px;  min-width: 48px;  max-width: 48px;  text-align: center; padding-left: 2px; padding-right: 2px; }
+.table-wrap .col-pn    { width: 130px; min-width: 130px; max-width: 130px; text-align: center; }
+.table-wrap .col-note  { width: 160px; min-width: 160px; max-width: 160px; text-align: center; }
+.table-wrap .col-check { width: 64px;  min-width: 64px;  max-width: 64px;  text-align: center; padding-left: 2px; padding-right: 2px; }
 
 /* sticky first column */
 .table-wrap td:nth-child(1),
@@ -370,24 +337,24 @@ body {
 }
 .table-wrap thead th:nth-child(1) { background: var(--bg2); }
 
-/* ── SHARED TABLE CELL STYLES ── */
+/* ── SHARED COLUMN HELPERS ── */
+.col-check { width: 64px; min-width: 64px; max-width: 64px; text-align: center; padding-left: 2px; padding-right: 2px; }
+.col-img   { width: 52px; text-align: center; }
+.col-pn    { width: 130px; text-align: center; }
+.col-note  { width: 160px; text-align: center; }
+.tc        { text-align: center; }
+
+/* ── DESCRIPTION + NOTE CELL CONTENT ── */
 .td-main {
   font-weight: 500; color: var(--text);
-  line-height: 1.35; white-space: normal;
-  max-width: 400px; text-align: left;
+  line-height: 1.4; white-space: normal;
+  text-align: center;
 }
 .td-note {
   font-size: 11px; color: var(--muted);
   margin-top: 3px; line-height: 1.4;
-  text-align: left;
+  text-align: center;
 }
-.tc { text-align: center; }
-
-/* ── SHARED COLUMN HELPERS ── */
-.col-check { width: 48px; min-width: 48px; max-width: 48px; text-align: center; padding-left: 2px; padding-right: 2px; }
-.col-img   { width: 52px; text-align: center; }
-.col-pn    { width: 130px; }
-.col-note  { width: 160px; text-align: left; }
 
 /* ── IMAGE PLACEHOLDER ── */
 .img-placeholder {
@@ -395,18 +362,14 @@ body {
   border: 1px dashed var(--border2);
   border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  margin: 0 auto;
-  color: var(--dim);
-  background: var(--surface2);
+  font-size: 18px; margin: 0 auto;
+  color: var(--dim); background: var(--surface2);
 }
 
 /* ── VALUE TEXT (text-value spec cells) ── */
 .val-text {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  white-space: nowrap;
+  font-size: 10px; color: var(--muted); white-space: nowrap;
 }
 
 /* ── CHECKMARK / DASH ── */
@@ -417,13 +380,11 @@ body {
 .pn {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11.5px; font-weight: 600;
-  color: var(--acc);
-  white-space: nowrap;
-  cursor: pointer;
+  color: var(--acc); white-space: nowrap; cursor: pointer;
 }
 .pn:hover { text-decoration: underline; }
-.desc  { color: var(--text2); line-height: 1.4; }
-.note  { color: var(--muted); font-size: 11.5px; font-style: italic; }
+.desc { color: var(--text2); line-height: 1.4; }
+.note { color: var(--muted); font-size: 11.5px; font-style: italic; }
 
 /* ── BADGES ── */
 .badge-cell { white-space: nowrap; }
@@ -463,8 +424,7 @@ body {
   padding: 8px 16px; border-radius: 6px;
   font-size: 12px; font-weight: 500;
   opacity: 0; pointer-events: none;
-  transition: opacity 0.2s;
-  box-shadow: var(--shadow-md);
+  transition: opacity 0.2s; box-shadow: var(--shadow-md);
 }
 .copy-toast.show { opacity: 1; }
 
