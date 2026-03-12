@@ -25,6 +25,7 @@ const COL_KEY = {
   'Pockets':'pockets','Recond.':'recondn',
   'AINS':'ains','WWet':'wwet','SmartSW':'smart_sw',
   'Ambient':'ambient','IMPRES 2':'impres2',
+  'HazLoc':'ul',
 };
 
 function ck(v) {
@@ -64,7 +65,7 @@ function buildImgCell(item) {
     return '<td class="col-img"><img src="' + item.img
       + '" alt="' + item.desc.replace(/"/g, '&quot;') + '" class="product-thumb"></td>';
   }
-  return '<td class="col-img"><div class="img-placeholder"></div></td>';
+  return '<td class="col-img"><div class="img-placeholder">📷</div></td>';
 }
 
 function buildCbCell(item, itemData) {
@@ -87,6 +88,29 @@ function buildItemData(item, cat, sec, radio) {
     checks:   item.checks || {},
     img:      item.img    || null,
   };
+}
+
+// Render a spec column cell — handles special cases for HazLoc and IP columns
+function renderSpecCell(col, val, textCols) {
+  // HazLoc — show text label instead of checkmark
+  if (col === 'HazLoc') {
+    if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
+    return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">HazLoc</span></td>';
+  }
+
+  // IP68 column — show full IP string instead of checkmark
+  if (col === 'IP68') {
+    if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
+    return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">IP68</span></td>';
+  }
+
+  // Text value columns
+  if (textCols.has(col)) {
+    return '<td style="font-size:12px;color:var(--text2)">' + ck(val) + '</td>';
+  }
+
+  // Standard checkmark column
+  return '<td class="tc">' + ck(val !== undefined ? val : 0) + '</td>';
 }
 
 function renderSidebar() {
@@ -131,191 +155,4 @@ function renderCatSidebar() {
 }
 
 function renderContent() {
-  const panel = document.getElementById('contentInner');
-  const radio = RADIOS[activeRadio];
-  const cat   = radio.categories[activeCat];
-  const total = cat.sections.reduce((s, sec) => s + sec.items.length, 0);
-  const cols     = cat.cols || null;
-  const specCols = cols ? cols.slice(2) : [];
-  const textCols = new Set(['NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets']);
-
-  const tagHtml = radio.tags.map((t, i) =>
-    '<span class="rh-tag ' + (radio.tagStyles[i] || '') + '">' + t + '</span>'
-  ).join('');
-
-  let html = '<div class="radio-header">'
-    + '<div class="rh-img-wrap"><span class="rh-img-placeholder">📻</span></div>'
-    + '<div class="rh-info">'
-    + '<div class="rh-name">' + radio.name + '</div>'
-    + '<div class="rh-sub">' + radio.sub + '</div>'
-    + '<div class="rh-tags">' + tagHtml + '</div>'
-    + '</div></div>'
-    + '<div class="cat-section">'
-    + '<div class="cat-section-header">'
-    + '<span class="cat-section-icon">' + cat.icon + '</span>'
-    + '<span class="cat-section-title">' + cat.label + '</span>'
-    + '<span class="cat-section-count">' + total + ' items</span>'
-    + '</div>';
-
-  cat.sections.forEach(sec => {
-    const items = filterItems(sec.items);
-    if (!items.length) return;
-
-    const isReplacementSection = sec.title.toLowerCase().includes('replacement');
-    const useSpecTable = !isReplacementSection && specCols.length > 0;
-
-    html += '<div class="acc-subsection">';
-    html += '<div class="acc-subsection-title">' + sec.title + '</div>';
-
-    if (useSpecTable) {
-
-      const activeCols = specCols.filter(col => {
-        const k = COL_KEY[col];
-        return items.some(item => {
-          if (!item.checks || k === undefined) return false;
-          const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '—' && v !== null;
-        });
-      });
-
-      const headerHtml = ''
-        + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
-        + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
-        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th>'
-        + '<th>Description</th>'
-        + activeCols.map(c =>
-            '<th class="col-check' + (textCols.has(c) ? '' : ' tc') + '" style="width:36px;min-width:36px;max-width:36px">' + c + '</th>'
-          ).join('');
-
-      const colgroupHtml = '<colgroup>'
-        + '<col style="width:28px;min-width:28px;max-width:28px">'
-        + '<col style="width:52px;min-width:52px;max-width:52px">'
-        + '<col style="width:130px;min-width:130px;max-width:130px">'
-        + '<col>'
-        + activeCols.map(() => '<col style="width:36px;min-width:36px;max-width:36px">').join('')
-        + '</colgroup>';
-
-      html += '<div class="table-wrap"><table>'
-        + colgroupHtml
-        + '<thead><tr>' + headerHtml + '</tr></thead>'
-        + '<tbody>';
-
-      items.forEach(item => {
-        const itemData = buildItemData(item, cat, sec, radio);
-        const cbCell   = buildCbCell(item, itemData);
-        const imgCell  = buildImgCell(item);
-        const noteHtml = item.note ? '<div class="td-note">' + item.note + '</div>' : '';
-
-        const specCells = activeCols.map(col => {
-          const k   = COL_KEY[col];
-          const val = (item.checks && k !== undefined) ? item.checks[k] : undefined;
-
-          if (col === 'UL HazLoc') {
-            if (!val || val === 0) return '<td class="tc"><span class="dash">—</span></td>';
-            const label = typeof val === 'string' ? val : 'UL';
-            return '<td class="tc"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">' + label + '</span></td>';
-          }
-
-          if (textCols.has(col)) return '<td style="font-size:12px;color:var(--text2)">' + ck(val) + '</td>';
-          return '<td class="tc">' + ck(val !== undefined ? val : 0) + '</td>';
-        }).join('');
-
-        html += '<tr>'
-          + cbCell
-          + imgCell
-          + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
-          + specCells
-          + '</tr>';
-      });
-
-      html += '</tbody></table></div>';
-
-    } else {
-
-      const colgroupHtml = '<colgroup>'
-        + '<col style="width:28px;min-width:28px;max-width:28px">'
-        + '<col style="width:52px;min-width:52px;max-width:52px">'
-        + '<col style="width:130px;min-width:130px;max-width:130px">'
-        + '<col>'
-        + '<col style="width:80px;min-width:80px;max-width:80px">'
-        + '</colgroup>';
-
-      html += '<table class="acc-table">'
-        + colgroupHtml
-        + '<thead><tr>'
-        + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
-        + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
-        + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px">Part Number</th>'
-        + '<th>Description</th>'
-        + '<th class="col-note" style="width:80px;min-width:80px;max-width:80px">Notes</th>'
-        + '</tr></thead><tbody>';
-
-      items.forEach(item => {
-        const itemData = buildItemData(item, cat, sec, radio);
-        const cbCell   = buildCbCell(item, itemData);
-        const imgCell  = buildImgCell(item);
-
-        html += '<tr>'
-          + cbCell
-          + imgCell
-          + '<td class="col-pn"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td class="desc">' + item.desc + '</td>'
-          + '<td class="note">' + (item.note || '') + '</td>'
-          + '</tr>';
-      });
-
-      html += '</tbody></table>';
-    }
-
-    html += '</div>';
-  });
-
-  html += '</div>';
-  panel.innerHTML = html;
-  panel.parentElement.scrollTop = 0;
-}
-
-function renderSubbar() {
-  const existing = document.getElementById('subbar');
-  if (existing) return;
-  const bar = document.createElement('div');
-  bar.className = 'subbar';
-  bar.id = 'subbar';
-  bar.innerHTML = `
-    <a class="subbar-home" href="../index.html">← Home</a>
-    <div class="subbar-sep"></div>
-    <div class="subbar-spacer"></div>
-    <div class="subbar-search-wrap">
-      <span class="subbar-search-icon">🔍</span>
-      <input class="subbar-search" id="subbarSearch" type="text" placeholder="Search part numbers..." autocomplete="off">
-      <span class="subbar-clear" id="subbarClear">✕</span>
-    </div>
-  `;
-  document.body.insertBefore(bar, document.querySelector('.page-body'));
-
-  const input = document.getElementById('subbarSearch');
-  const clear = document.getElementById('subbarClear');
-
-  input.addEventListener('input', () => {
-    searchTerm = input.value.trim().toLowerCase();
-    clear.classList.toggle('show', searchTerm.length > 0);
-    renderContent();
-  });
-
-  clear.addEventListener('click', () => {
-    input.value = '';
-    searchTerm = '';
-    clear.classList.remove('show');
-    renderContent();
-  });
-}
-
-function renderAll() {
-  renderSubbar();
-  renderSidebar();
-  renderCatSidebar();
-  renderContent();
-}
-
-renderAll();
+  const pa
