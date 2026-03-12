@@ -28,8 +28,12 @@ const COL_KEY = {
   'HazLoc':'ul',
 };
 
-// Columns that return text values rather than checkmarks — sorted to the left
+// Columns that display text values instead of checkmarks — sorted left of checkmark cols
 const TEXT_VALUE_COLS = new Set(['NRR','Wires','FW Required','Capacity','IP Rating','Temp Range','Pockets','IP68','HazLoc']);
+
+function colWidth(col) {
+  return TEXT_VALUE_COLS.has(col) ? '64px' : '48px';
+}
 
 function ck(v) {
   if (v === 1 || v === true)  return '<span class="ck">✓</span>';
@@ -110,7 +114,6 @@ function renderSpecCell(col, val) {
 }
 
 function sortCols(cols) {
-  // Text-value columns first, then checkmark columns
   const text  = cols.filter(c => TEXT_VALUE_COLS.has(c));
   const check = cols.filter(c => !TEXT_VALUE_COLS.has(c));
   return [...text, ...check];
@@ -195,6 +198,7 @@ function renderContent() {
 
     if (useSpecTable) {
 
+      // Filter to only columns that have at least one active value in this section
       const rawActiveCols = specCols.filter(col => {
         const k = COL_KEY[col];
         return items.some(item => {
@@ -207,23 +211,25 @@ function renderContent() {
       // Text-value cols on left, checkmark cols on right
       const activeCols = sortCols(rawActiveCols);
 
-      const colWidth = '48px';
-
       const headerHtml = ''
         + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
         + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
         + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
-        + '<th style="max-width:300px;text-align:center">Description</th>'
-        + activeCols.map(c =>
-            '<th class="col-check tc" style="width:' + colWidth + ';min-width:' + colWidth + ';max-width:' + colWidth + ';text-align:center">' + c + '</th>'
-          ).join('');
+        + '<th style="max-width:300px;text-align:left">Description</th>'
+        + activeCols.map(c => {
+            const w = colWidth(c);
+            return '<th class="col-check tc" style="width:' + w + ';min-width:' + w + ';max-width:' + w + '">' + c + '</th>';
+          }).join('');
 
       const colgroupHtml = '<colgroup>'
         + '<col style="width:28px;min-width:28px;max-width:28px">'
         + '<col style="width:52px;min-width:52px;max-width:52px">'
         + '<col style="width:130px;min-width:130px;max-width:130px">'
         + '<col style="max-width:300px">'
-        + activeCols.map(() => '<col style="width:' + colWidth + ';min-width:' + colWidth + ';max-width:' + colWidth + '">').join('')
+        + activeCols.map(c => {
+            const w = colWidth(c);
+            return '<col style="width:' + w + ';min-width:' + w + ';max-width:' + w + '">';
+          }).join('')
         + '</colgroup>';
 
       html += '<div class="table-wrap"><table>'
@@ -247,7 +253,7 @@ function renderContent() {
           + cbCell
           + imgCell
           + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td style="max-width:300px"><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
+          + '<td style="max-width:300px;text-align:left"><div class="td-main">' + item.desc + '</div>' + noteHtml + '</td>'
           + specCells
           + '</tr>';
       });
@@ -255,13 +261,14 @@ function renderContent() {
       html += '</tbody></table></div>';
 
     } else {
+      // Path 2 — simple table (replacement sections / no spec cols)
 
       const colgroupHtml = '<colgroup>'
         + '<col style="width:28px;min-width:28px;max-width:28px">'
         + '<col style="width:52px;min-width:52px;max-width:52px">'
         + '<col style="width:130px;min-width:130px;max-width:130px">'
         + '<col style="max-width:300px">'
-        + '<col style="width:80px;min-width:80px;max-width:80px">'
+        + '<col style="width:160px;min-width:160px;max-width:160px">'
         + '</colgroup>';
 
       html += '<table class="acc-table">'
@@ -270,8 +277,8 @@ function renderContent() {
         + '<th class="report-cb-cell" style="width:28px;min-width:28px;max-width:28px"></th>'
         + '<th class="col-img" style="width:52px;min-width:52px;max-width:52px;text-align:center">IMG</th>'
         + '<th class="col-pn" style="width:130px;min-width:130px;max-width:130px;text-align:center">Part Number</th>'
-        + '<th style="max-width:300px;text-align:center">Description</th>'
-        + '<th class="col-note" style="width:80px;min-width:80px;max-width:80px;text-align:center">Notes</th>'
+        + '<th style="max-width:300px;text-align:left">Description</th>'
+        + '<th class="col-note" style="width:160px;min-width:160px;max-width:160px;text-align:center">Notes</th>'
         + '</tr></thead><tbody>';
 
       items.forEach(item => {
@@ -283,8 +290,8 @@ function renderContent() {
           + cbCell
           + imgCell
           + '<td class="col-pn" style="text-align:center"><span class="pn" onclick="copyPN(\'' + item.pn + '\')">' + highlightPN(item.pn) + '</span></td>'
-          + '<td class="desc" style="max-width:300px">' + item.desc + '</td>'
-          + '<td class="note" style="text-align:center">' + (item.note || '') + '</td>'
+          + '<td class="desc" style="max-width:300px;text-align:left">' + item.desc + '</td>'
+          + '<td class="col-note" style="text-align:left">' + (item.note || '') + '</td>'
           + '</tr>';
       });
 
