@@ -39,7 +39,7 @@ const COL_KEY = {
   'Headset Type':'hstype',
   'Earpiece Style':'epstyle','Earpiece Type':'eptype',
   'Microphone':'mic',
-  'PTT':'ptt','PTT Requirement':'pttreq',
+  'PTT':'ptt','PTT Requirement':'pttreq','PTT Req':'pttreq',
   'Talk Time (Hours)':'talktime','ChrgTime':'chrgtime',
   'Ops Critical':'opscrit',
   'Pairing':'pairing',
