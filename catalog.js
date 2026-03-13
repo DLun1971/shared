@@ -177,8 +177,7 @@ function renderContent() {
   const cat   = radio.categories[activeCat];
   const total = cat.sections.reduce((s, sec) => s + sec.items.length, 0);
   const cols     = cat.cols || null;
-  const specCols = cols ? cols.slice(2) : [];
-
+  
   const tagHtml = radio.tags.map((t, i) =>
     '<span class="rh-tag ' + (radio.tagStyles[i] || '') + '">' + t + '</span>'
   ).join('');
@@ -199,6 +198,8 @@ function renderContent() {
 
   cat.sections.forEach(sec => {
     const items = filterItems(sec.items);
+    const secCols  = sec.cols || cols;
+    const specCols = secCols ? secCols.slice(2) : [];
     if (!items.length) return;
 
     const isReplacementSection = sec.title.toLowerCase().includes('replacement');
@@ -364,3 +365,4 @@ function renderAll() {
 }
 
 renderAll();
+
