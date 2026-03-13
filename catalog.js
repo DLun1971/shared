@@ -66,6 +66,7 @@ const TEXT_VALUE_COLS = new Set([
   'HazLoc','IP',
   'Chem','Volts','Power','Noise Type','Style','Coverage',
   'Matl','Belt','Band','Freq','Ant Type','Length',
+  'Dims','Jack',
 ]);
 
 function colWidth(col) {
