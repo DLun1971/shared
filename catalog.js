@@ -40,7 +40,7 @@ const COL_KEY = {
   'EpStyl':'epstyle','EpTyp':'eptype',
   'Mic':'mic',
   'PTT':'ptt','PTT Requirement':'pttreq','PTT Req':'pttreq',
-  'TlkTm':'talktime','ChrgTime':'chrgtime',
+  'TlkTm':'talktime','ChrgTime':'chrgtime', 'ChrTm':'chrgtime',
   'OpsCrit':'opscrit',
   'Pair':'pairing',
   'Range':'range',
