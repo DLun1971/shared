@@ -1,4 +1,4 @@
-/* Motorola Accessory Catalog \u2014 Shared Rendering Engine \u2014 catalog.js */
+/* Motorola Accessory Cataalog.js */
 
 let activeRadio = null;
 let activeCat   = null;
@@ -45,16 +45,14 @@ const COL_KEY = {
   'Pair':'pairing',
   'Range':'range',
   'ProgBtn':'progbtn',
-  'Jck':'jack',
+  'Jack':'jack',
   'Vol Steps':'volsteps',
   'ConType':'contype',
   'Speaker':'speaker',
   'SNR':'snr',
   'ANC':'anc',
   'Large Front PTT':'fptt','Side PTT':'sptt',
-  'Noise Type':'noise_type', 'Jck':'jack', 'Dims':'dims', 'EpStyl':'epstyle', 'EpTyp':'eptype', 'FulDpx':'fulldx', 'HsTyp':'hstype', 'Mic':'mic', 'OpsCrit':'opscrit', 'Pair':'pairing', 'ProgBtn':'progbtn', 'Range':'range', 'TlkTm':'talktime', 'Temp':'temp', 'Wndprt':'windport', 'Volts':'voltage', 'Chem':'chem', 'Matl':'material',
-  'Style':'style','Coverage':'ears',
-  'Matl':'material',
+  'Noise Type':'noise_type',
   'Belt':'belt_sz','Clip Dim':'clipdim',
   'Swivel':'swivel','Display':'display','D-Rings':'drings',
   'Band':'band','Freq':'freq_mhz','Ant Type':'ant_type','Length':'len_cm',
@@ -66,7 +64,7 @@ const TEXT_VALUE_COLS = new Set([
   'HazLoc','IP',
   'Chem','Volts','Power','Noise Type','Style','Coverage',
   'Matl','Belt','Band','Freq','Ant Type','Length',
-  'Dimensions','Audio Jack',
+  'Dims','Jack',
 ]);
 
 function colWidth(col) {
