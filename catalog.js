@@ -233,7 +233,7 @@ function renderContent() {
         return items.some(item => {
           if (!item.checks || k === undefined) return false;
           const v = item.checks[k];
-          return v !== undefined && v !== 0 && v !== false && v !== '\u2014' && v !== null;
+          return v !== undefined;
         });
       });
 
