@@ -52,7 +52,7 @@ const COL_KEY = {
   'SNR':'snr',
   'ANC':'anc',
   'Large Front PTT':'fptt','Side PTT':'sptt',
-  'Noise Type':'noise_type',
+  'Noise Type':'noise_type', 'Jck':'jack', 'Dims':'dims', 'EpStyl':'epstyle', 'EpTyp':'eptype', 'FulDpx':'fulldx', 'HsTyp':'hstype', 'Mic':'mic', 'OpsCrit':'opscrit', 'Pair':'pairing', 'ProgBtn':'progbtn', 'Range':'range', 'TlkTm':'talktime', 'Temp':'temp', 'Wndprt':'windport', 'Volts':'voltage', 'Chem':'chem', 'Matl':'material',
   'Style':'style','Coverage':'ears',
   'Matl':'material',
   'Belt':'belt_sz','Clip Dim':'clipdim',
