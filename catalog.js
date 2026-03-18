@@ -57,6 +57,7 @@ const COL_KEY = {
   'Swivel':'swivel','Display':'display','D-Rings':'drings',
   'Band':'band','Freq':'freq_mhz','Ant Type':'ant_type','Length':'len_cm',
 };
+window.COL_KEY = COL_KEY;
 
 // Columns that display text values instead of checkmarks \u2014 sorted LEFT of checkmark cols
 const TEXT_VALUE_COLS = new Set([
